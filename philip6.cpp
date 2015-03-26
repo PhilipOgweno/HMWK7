@@ -18,6 +18,8 @@
 #include <locale>
 #include <ctype.h>
 #include <stdlib.h>
+#include "earthquake.h"
+#include "Station_Info.h"
 
 using namespace std;
 
@@ -27,44 +29,8 @@ string iFileName, oFilename = "philip.out", logfilename = "philip.log", message;
 int flag;
 
 // Defining Classes
-// Earthquake class definition
 
-class earthquake 
-{
-    public:
-        void setEarthquake ();
-        string getEarthquake ();
-        ~earthquake
-        
-    private:
-        string Event_ID;
-        string Date;
-        string Time;
-        string Time_Zone;
-        string EqkName;
-        string Lon;
-        string Lat;
-        string depth;
-        string Mag_type_string;
-        float Mag_size;
-};
-
-// Station class definition
-class Station_Info 
-{
-    public:
-        set_function
-        get_function
-
-    public:
-        string Network_Code;
-        string Stn_code;
-        string Band_Type;
-        string Inst_Type;
-        string Orient;
-};
-
-// Defining Enumerators
+//// Defining Enumerators
 
 enum Months {January = 1, February, March, April, May, June,
      July, August, September, October, November, December};
@@ -72,8 +38,10 @@ enum Mag_type {ML, Ms, Mb, Mw };
 enum Network_Code {CE, CI, FA, NP, WR };
 enum Band_Type {longperiod, shortperiod, broadband };
 enum Inst_Type {highgain, lowgain, accelerometer };
+    string uppercase ( string );
+    string Mag_type2string ( Mag_type );
+    Mag_type string2_Mag_type ( string );
 //******************************************************************************
-// Function Prototypes
 
 void open_input ( ifstream & );
 void open_file ( string, ofstream & );
@@ -92,18 +60,15 @@ void Network_Code_check ( int, string, ofstream & );
 void Stn_code_check ( int, string, ofstream & );
 void Band_Type_check ( int, string , ofstream & );
 void Inst_Type_check ( int, string, ofstream & );
-//******************************************************************************
-string MonthStrng ( Months );
-string uppercase ( string );
-string Mag_type2string ( Mag_type );
-Mag_type string2_Mag_type ( string );
+
+
 string Network_Code_to_string ( Network_Code );
 Network_Code string2_Network_Code ( string );
 string Band_Type2string ( Band_Type );
 Band_Type string2_Band_Type ( string );
 string Inst_Type2string ( Inst_Type );
 Inst_Type string2_Inst_Type ( string );
-//******************************************************************************
+
 // Main Program starts here
 
 int main ()
@@ -390,242 +355,13 @@ void print_file ( int number, ofstream & ofs )     // Function to Prints numbers
     cout << number << flush;
     return;
 }
-//******************************************************************************
-void Date_check ( string Date, ofstream & logfile ) // function to checks validity of Date
-{
-    message = "Incorect Date !";
-    if ( Date.length() != 10 ) 
-    {
-        print_file ( message, logfile );
-        exit (EXIT_FAILURE);
-    }
-    else 
-    {
-        if (( ( Date[2] != "-"[0] ) && ( Date[2] != "/"[0])) || 
-        (( Date[5] != "-"[0] ) && ( Date[5] != "/"[0])) ) 
-        {
-            print_file ( message, logfile );
-            exit (EXIT_FAILURE);
-        }
-        else 
-        {
-            if (( !isdigit ( Date[0])) || ( !isdigit ( Date[1])) || 
-            ( !isdigit ( Date[3])) || ( !isdigit ( Date[4])) ) 
-            {
-                print_file ( message, logfile );
-                exit (EXIT_FAILURE);
-            }  
-            if (( !isdigit ( Date[6])) || ( !isdigit ( Date[7])) || 
-            ( !isdigit ( Date[8])) || ( !isdigit ( Date[9])) ) 
-            {
-                print_file ( message, logfile );
-                exit (EXIT_FAILURE);
-            }
-        }
-    }
-    return;
-}
-//******************************************************************************
-void Month_check ( int Month, ofstream & logfile )  // function to check validity of Month 
-{
-    if (( Month > 12 ) || ( Month < 1))
-    {
-        message = "Incorect Month ! ";
-        print_file ( message, logfile );
-        exit (EXIT_FAILURE);
-    }
-    return;
-}
-//******************************************************************************
-void Day_check ( int day, ofstream & logfile )    // function checks the validity of Day
-{
-    if (( day > 31 ) || ( day < 1))
-    {
-        message = "Incorect Day !.";
-        print_file ( message, logfile );
-        exit (EXIT_FAILURE);
-    }
-    return;
-}
-//******************************************************************************
-void Year_check ( int year, ofstream & logfile )  // checking the validity of Year
-{
-    if ( year < 0 ) 
-    {
-        message = "Incorect Year !";
-        print_file ( message, logfile );
-        exit (EXIT_FAILURE);
-    }
-    return;
-}
-//******************************************************************************
-void Time_check ( string Time, ofstream & logfile )  // checking the validity of Time
-{
-    message = "Incorrect Time format !";
-    if ( Time.length() != 12 ) 
-    {
-        print_file ( message, logfile );
-        exit (EXIT_FAILURE);
-    }
-    else 
 
-    {
-        if (( Time[2] != ":"[0] ) || ( Time[5] != ":"[0] ) || 
-           ( Time[8] != "."[0])) 
-        {
-            print_file ( message, logfile );
-            exit (EXIT_FAILURE);
-        }
-
-        else 
-        {
-        if (( !isdigit ( Time[0])) || ( !isdigit ( Time[1])) || 
-           ( !isdigit ( Time[3])) || ( !isdigit ( Time[4])) ) 
-        {
-            print_file ( message, logfile );
-            exit (EXIT_FAILURE);
-        }
-
-        if (( !isdigit ( Time[6])) || ( !isdigit ( Time[7])) || 
-           ( !isdigit ( Time[9])) 
-        || ( !isdigit ( Time[10])) || ( !isdigit ( Time[11])) ) 
-        {
-            print_file ( message, logfile );
-            exit (EXIT_FAILURE);
-        }
-
-        // Defining other Variables
-
-        string temp0, h1, h2;
-        double Val;
-
-        temp0 =  temp0.append ( Time.begin (), Time.begin () + 2 ); // checking the validity of Hour
-        Val = atoi(temp0.c_str());
-        if (( Val < 0 ) || ( Val > 23)) 
-        {
-            message = "Incorrect Hour !.";
-            print_file ( message, logfile );
-            exit (EXIT_FAILURE);
-        }
-
-        h1 =  h1.append ( Time.begin () + 3, Time.begin () + 5 ); // checking the validity of Minutes
-        Val = atoi(h1.c_str());
-        if (( Val < 0 ) || ( Val > 59)) 
-        {
-            message = "Incorrect Minute !.";
-            print_file ( message, logfile );
-            exit (EXIT_FAILURE);
-        }
-
-        h2 =  h2.append ( Time.begin () + 6, Time.begin () + 8 ); // checking the validity of Seconds
-        Val = atoi(h2.c_str());
-        if (( Val < 0 ) || ( Val > 59)) 
-        {
-            message = "Incorrect Second !.";
-            print_file ( message, logfile );
-            exit (EXIT_FAILURE);
-        }
-        }
-    }
-    return;
-}
-//******************************************************************************
-void Time_Zone_check ( string Time_Zone, ofstream & logfile ) // checking the validity of Time Zone
-{
-    message = "Incorrect Time_Zone format !.";
-    if (( Time_Zone.length() != 3 ) || ( !isalpha ( Time_Zone[0])) || 
-    ( !isalpha ( Time_Zone[1])) || ( !isalpha ( Time_Zone[2])) ) 
-    {
-        print_file ( message, logfile );
-        exit (EXIT_FAILURE);
-    }
-    return;
-}
-//******************************************************************************
-void Mag_Type_check ( string Mag_type, ofstream & logfile ) // checking the validity of MagType
-{
-    message = "Incorrect Mag_type !.";
-    string mt = uppercase ( Mag_type );
-    if (( mt != uppercase ( "ml")) && ( mt != uppercase ( "ms")) 
-    && ( mt != uppercase ( "mb")) && ( mt != uppercase ( "mw")) ) 
-    {
-        print_file ( message, logfile );
-        exit (EXIT_FAILURE);
-    }
-    return;
-}
-//******************************************************************************
-// Function to checks for validity of Mag size 
-
-void Mag_size_check ( float Mag_size, ofstream & logfile ) 
-{
-    message = "Incorrect Magnitude size !";
-    if ( Mag_size <= 0 ) 
-    {
-        print_file ( message, logfile );
-        exit (EXIT_FAILURE);
-    }
-    return;
-}
-//******************************************************************************
 string uppercase ( string s )          // Converts all letters of input string to upper case.
 {
     string result = s;
     for (int i=0; i < (int)s.size(); i++)
         result[i] = toupper(s[i]);
     return result;
-}
-//******************************************************************************
-string MonthStrng ( Months Month )   // Function to Convert "Month" to a String
-{
-    switch ( Month ) 
-    {
-        case January:
-            return "January";
-        case February:
-            return "February";
-        case March:
-            return "March";
-        case April:
-            return "April";
-        case May:
-            return "May";
-        case June:
-            return "June";
-        case July:
-            return "July";
-        case August:
-            return "August";
-        case September:
-            return "September";
-        case October:
-            return "October";
-        case November:
-            return "November";
-        case December:
-            return "December";
-        default:
-            return "ILLEGAL";
-    }
-}
-//******************************************************************************
-// Function to Produce Signal Name
-        
-void Signals ( ofstream & oFile, string Event_ID, string Network_Code, 
-     string Stn_code, string Band_Type, string Inst_Type, string Orient ) 
-{ 
-    string temp= "";
-    temp.append( Event_ID );
-    temp.append( "." );
-    temp.append( Network_Code );
-    temp.append( "." );
-    temp.append( Stn_code );
-    temp.append( "." );
-    temp.append( Band_Type );
-    temp.append( Inst_Type );
-    temp.append( Orient );
-    oFile << temp << endl;
-    return;
 }
 //******************************************************************************
 // Function to Check Network Code
@@ -729,44 +465,7 @@ void Inst_Type_check ( int Numb_of_input, string instrument, ofstream & logfile 
     }
 }
 //******************************************************************************
-string Mag_type2string ( Mag_type M )         // Function to Change Mag Type to String
-{
-    switch ( M ) 
-    {
-        case ML:
-            return "ML";
-        case Ms:
-            return "Ms";
-        case Mb:
-            return "Mb";
-        case Mw:
-            return "Mw";
-    }
-    exit(EXIT_FAILURE);
-}
-//******************************************************************************
-Mag_type string2_Mag_type ( string NN )       // Function to Change String to Mag Type
-{
-    NN = uppercase ( NN );
-    if ( NN == "ML" ) 
-    {
-        return ML;
-    }    
-    if ( NN == "MS" ) 
-    {
-        return Ms;
-    }
-    if ( NN == "MB" ) 
-    {
-        return Mb;
-    }
-    if ( NN == "MW" ) 
-    {
-        return Mw;
-    }
-    exit(EXIT_FAILURE);
-}
-//******************************************************************************
+
 string Network_Code_to_string ( Network_Code MM )  // Function to Change Network Code to String
 {
     switch ( MM ) 
@@ -875,4 +574,6 @@ Inst_Type string2_Inst_Type (string NN)   // Function to Change String to Instru
         return accelerometer;
     }
     exit(EXIT_FAILURE);
-}//******************************************************************************
+}
+//******************************************************************************
+
